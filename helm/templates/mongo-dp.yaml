@@ -1,0 +1,31 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ include "todo.fullname" . }}-mongo
+  labels:
+    app: mongo
+  {{- include "todo.labels" . | nindent 4 }}
+spec:
+  replicas: {{ .Values.mongo.replicas }}
+  selector:
+    matchLabels:
+      app: mongo
+    {{- include "todo.selectorLabels" . | nindent 6 }}
+  template:
+    metadata:
+      labels:
+        app: mongo
+      {{- include "todo.selectorLabels" . | nindent 8 }}
+    spec:
+      containers:
+      - env:
+        - name: MONGODB_INITDB_ROOT_USERNAME
+          value: {{ quote .Values.mongo.mongo.env.mongodbInitdbRootUsername }}
+        - name: MONGODB_INITDB_ROOT_PASSWORD
+          value: {{ quote .Values.mongo.mongo.env.mongodbInitdbRootPassword }}
+        - name: KUBERNETES_CLUSTER_DOMAIN
+          value: {{ quote .Values.kubernetesClusterDomain }}
+        image: {{ .Values.mongo.mongo.image.repository }}:{{ .Values.mongo.mongo.image.tag
+          | default .Chart.AppVersion }}
+        name: mongo
+        resources: {}

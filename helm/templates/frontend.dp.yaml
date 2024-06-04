@@ -1,0 +1,33 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ include "todo.fullname" . }}-web
+  labels:
+    app: web
+  {{- include "todo.labels" . | nindent 4 }}
+spec:
+  replicas: {{ .Values.web.replicas }}
+  selector:
+    matchLabels:
+      app: web
+    {{- include "todo.selectorLabels" . | nindent 6 }}
+  template:
+    metadata:
+      labels:
+        app: web
+      {{- include "todo.selectorLabels" . | nindent 8 }}
+    spec:
+      containers:
+      - env:
+        - name: REACT_APP_API_URL
+          value: {{ quote .Values.web.todoFrontend.env.reactAppApiUrl }}
+        - name: API_URL
+          value: {{ quote .Values.web.todoFrontend.env.apiUrl }}
+        - name: KUBERNETES_CLUSTER_DOMAIN
+          value: {{ quote .Values.kubernetesClusterDomain }}
+        image: {{ .Values.web.todoFrontend.image.repository }}:{{ .Values.web.todoFrontend.image.tag
+          | default .Chart.AppVersion }}
+        name: todo-frontend
+        ports:
+        - containerPort: 3000
+        resources: {}

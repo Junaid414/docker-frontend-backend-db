@@ -1,0 +1,39 @@
+api:
+  ports:
+  - port: 3001
+    protocol: TCP
+    targetPort: 3001
+  replicas: 1
+  todoBackend:
+    image:
+      repository: hasil86/todo-backend
+      tag: "24"
+  type: ClusterIP
+kubernetesClusterDomain: cluster.local
+mongo:
+  mongo:
+    env:
+      mongodbInitdbRootPassword: password
+      mongodbInitdbRootUsername: username
+    image:
+      repository: mongo
+      tag: latest
+  ports:
+  - port: 27017
+    protocol: TCP
+    targetPort: 27017
+  replicas: 1
+  type: ClusterIP
+web:
+  ports:
+  - port: 80
+    targetPort: 3000
+  replicas: 1
+  todoFrontend:
+    env:
+      apiUrl: http://api:3001
+      reactAppApiUrl: http://api:3001
+    image:
+      repository: hasil86/todo-frontend
+      tag: "24"
+  type: LoadBalancer

@@ -1,0 +1,29 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ include "todo.fullname" . }}-api
+  labels:
+    app: api
+  {{- include "todo.labels" . | nindent 4 }}
+spec:
+  replicas: {{ .Values.api.replicas }}
+  selector:
+    matchLabels:
+      app: api
+    {{- include "todo.selectorLabels" . | nindent 6 }}
+  template:
+    metadata:
+      labels:
+        app: api
+      {{- include "todo.selectorLabels" . | nindent 8 }}
+    spec:
+      containers:
+      - env:
+        - name: KUBERNETES_CLUSTER_DOMAIN
+          value: {{ quote .Values.kubernetesClusterDomain }}
+        image: {{ .Values.api.todoBackend.image.repository }}:{{ .Values.api.todoBackend.image.tag
+          | default .Chart.AppVersion }}
+        name: todo-backend
+        ports:
+        - containerPort: 3001
+        resources: {}
